@@ -208,7 +208,7 @@ input[type=email],input[type=password]{width:100%;border:1px solid var(--edge);b
 
 <script>
 /* ====== CONFIGURACIÓN: pega aquí los datos de tu proyecto Supabase (Settings → API) ====== */
-const CFG={url:'PEGA_AQUI_TU_PROJECT_URL',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBieXNwbmF0dWh5eHNjc2xneHJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyNzA0NjUsImV4cCI6MjExMDg0NjQ2NX0.ZWSQNbJNV4BcQpJBL0K6dmn9v6Hi_N5rizbcE-U2uQk'};
+const CFG={url:'sb_publishable_C1RjuP7pMnln5f81SXnp6Q_xZtCK7Wn',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBieXNwbmF0dWh5eHNjc2xneHJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyNzA0NjUsImV4cCI6MjExMDg0NjQ2NX0.ZWSQNbJNV4BcQpJBL0K6dmn9v6Hi_N5rizbcE-U2uQk'};
 /* ========================================================================================= */
 const ok=!CFG.url.startsWith('PEGA')&&window.supabase;
 const sb=ok?supabase.createClient(CFG.url,CFG.key):null;
