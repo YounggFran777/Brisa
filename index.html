@@ -185,6 +185,26 @@ input[type=email],input[type=password]{width:100%;border:1px solid var(--edge);b
 [data-theme="flat"] .tab[aria-selected="true"],[data-theme="flat"] .seg button[aria-pressed="true"]{background:var(--c,#2f7bff);color:var(--on,#fff);box-shadow:none}
 [data-theme="flat"] .seg{box-shadow:none;border:0}
 [data-theme="flat"] .item[aria-current="true"]{background:var(--field);border-color:transparent;box-shadow:none}
+.av{border-radius:50%;background:var(--field) center/cover;display:grid;place-items:center;font-weight:800;color:var(--soft);flex:none;overflow:hidden}
+.av.big{width:96px;height:96px;font-size:36px}.av.sm{width:40px;height:40px;font-size:16px}.av.xs{width:30px;height:30px;font-size:13px}
+.prow{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.pcol{display:flex;flex-direction:column;gap:10px}
+.who{background:none;border:0;padding:0;font-weight:700;color:var(--accent);cursor:pointer;text-align:left;font-size:13px}
+.pp{display:flex;gap:10px;align-items:center}.pp>div:last-child{min-width:0}
+.chatw{height:100%;display:grid;grid-template-columns:340px minmax(0,1fr);gap:14px}
+.msgs{flex:1;min-height:0;overflow:auto;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:80%;padding:9px 13px;border-radius:18px;background:var(--field);color:var(--ink);align-self:flex-start;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:#1b78e6;color:#fff}
+.msg small{display:block;opacity:.7;font-size:11px;margin-top:3px}
+.msg audio{width:100%;min-width:200px;margin-top:6px;height:36px}
+.msg.me .link{color:#fff;font-size:11px;padding:2px 0}
+.compose{display:flex;gap:8px;padding:10px 12px 14px;align-items:center;flex-wrap:wrap}
+.compose input[type=text]{flex:1;min-width:140px}
+.compose select{max-width:160px;border:1px solid var(--edge);background:var(--field);color:var(--ink);border-radius:14px;padding:9px;font:inherit;font-size:13px}
+.cmts{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;padding-top:10px}.cmts[hidden]{display:none}
+.cm{display:flex;gap:8px;align-items:flex-start}.cm .cb{flex:1;min-width:0;background:var(--field);border-radius:14px;padding:7px 11px;font-size:14px;overflow-wrap:anywhere;color:var(--ink)}
+.cin{display:flex;gap:8px}.cin input{flex:1}
+[data-theme="flat"] .msg.me{background:var(--c,#2f7bff);color:var(--on,#fff)}
+@media (max-width:820px){.chatw{grid-template-columns:minmax(0,1fr)}.chatw #cThread{display:none}.chatw.th #cList{display:none}.chatw.th #cThread{display:flex}}
 </style>
 <script>
 const ld=k=>{try{return localStorage.getItem(k)}catch(e){return null}},store=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -223,7 +243,7 @@ applyTheme();
     <button class="tab" role="tab" data-t="N" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M9 11h6M9 15h4"/></svg>Notas</button>
     <button class="tab" role="tab" data-t="M" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>Mi música</button>
     <button class="tab" role="tab" data-t="C" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Comunidad</button>
-    <button class="tab" role="tab" data-t="S" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Ajustes</button>
+    <button class="tab" role="tab" data-t="S" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Perfil</button>
   </nav>
 
   <main class="view">
@@ -261,17 +281,43 @@ applyTheme();
       <div class="scroll" id="feed"></div>
     </section>
     <section class="panel" id="vS" hidden>
-      <div class="bar glass gloss"><h1>Ajustes<small>Tema y cuenta</small></h1></div>
+      <div class="bar glass gloss"><h1>Perfil<small>Tu foto, chat y tema</small></h1></div>
       <div class="scroll" style="align-content:start">
+        <div class="glass sc wide"><div class="prow"><div class="av big" id="myAv"></div><div class="pcol"><label class="btn">Cambiar foto<input type="file" id="avIn" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden></label><button class="btn main" id="goChat">Chat</button></div></div>
+          <label style="font-size:13px;font-weight:700;color:var(--soft);display:flex;flex-direction:column;gap:6px">Nombre<input type="text" id="pName" maxlength="40"></label>
+          <button class="btn sm main" id="pSave" style="align-self:flex-start">Guardar nombre</button><div class="err" id="pErr" role="alert"></div></div>
         <div class="glass sc wide"><h2>Tema</h2><div class="themes" id="themes"></div></div>
         <div class="glass sc wide" id="modeBox" hidden><h2>Modo</h2><div class="seg" style="align-self:flex-start"><button data-m="light">Claro</button><button data-m="dark">Oscuro</button></div></div>
         <div class="glass sc wide" id="colorBox" hidden><h2>Color</h2><div class="sw" id="sw"></div><span class="hint">Elige uno de la lista o crea el tuyo con el cuadro de la derecha.</span></div>
         <div class="glass sc wide"><h2>Cuenta</h2><p id="uMail"></p><button class="btn danger" id="out" style="align-self:flex-start">Cerrar sesión</button></div>
       </div>
     </section>
+    <section class="chatw" id="vH" hidden>
+      <div class="list glass" id="cList">
+        <div class="bar"><button class="btn icon" id="cBack0" aria-label="Volver al perfil">‹</button><h1>Chat</h1></div>
+        <div class="search"><input type="search" id="cq" placeholder="Buscar persona por nombre" aria-label="Buscar persona"></div>
+        <div class="items" id="cItems"></div>
+      </div>
+      <div class="editor glass" id="cThread">
+        <div class="bar"><button class="btn icon back" id="cBack" aria-label="Volver a los chats">‹</button><div class="av sm" id="cAv"></div><h1 id="cName"></h1><button class="btn sm danger" id="cRep">Denunciar</button></div>
+        <div class="msgs" id="msgs"></div>
+        <div class="compose">
+          <label class="btn icon" title="Enviar un audio">♪<input type="file" id="cFile" accept=".mp3,.wav,.wave,.m4a,.aac,.ogg,.oga,.opus,.flac,.weba,.webm,.mp4,audio/*" hidden></label>
+          <select id="cInst" aria-label="Enviar un instrumental de mis notas"></select>
+          <input type="text" id="cText" maxlength="2000" placeholder="Escribe un mensaje" aria-label="Mensaje">
+          <button class="btn main" id="cSend">Enviar</button>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 
+<dialog id="pdlg"><div class="sheet glass gloss" style="align-items:center;text-align:center"><div class="av big" id="pdAv"></div><h2 id="pdName"></h2><p class="hint" id="pdInfo"></p><div class="row"><button class="btn" id="pdClose">Cerrar</button><button class="btn main" id="pdChat">Escribir</button></div></div></dialog>
+<dialog id="rdlg"><div class="sheet glass gloss"><h2>Denunciar a <span id="rdName"></span></h2>
+  <label>Motivo<textarea id="rdWhy" rows="4" maxlength="1000" placeholder="Cuéntanos qué pasó (mínimo 10 caracteres)"></textarea></label>
+  <label>Captura de pantalla (obligatoria)<input type="file" id="rdShot" accept="image/png,image/jpeg,image/webp"><span class="hint">Toma una captura del chat y súbela aquí. Se enviará junto con los últimos mensajes de la conversación.</span></label>
+  <div class="err" id="rdErr" role="alert"></div>
+  <div class="row"><button class="btn" id="rdCancel">Cancelar</button><button class="btn main" id="rdSend">Enviar denuncia</button></div></div></dialog>
 <dialog id="dlg"><div class="sheet glass gloss">
   <h2>Subir canción</h2>
   <div class="pick"><div class="prev" id="prev"></div><label style="flex:1">Portada<input type="file" id="fCover" accept="image/jpeg,image/png,.jpg,.jpeg,.png"><span class="hint">JPG o PNG, cuadrada (1:1), mínimo 1400×1400 px (ideal 3000×3000), máx. 10 MB.</span></label></div>
@@ -343,23 +389,25 @@ async function start(u){
   const [n,i,s,c,l]=await Promise.all([
     sb.from('notes').select('*').order('updated_at',{ascending:false}),
     sb.from('instrumentals').select('*'),
-    sb.from('songs').select('*').eq('user_id',u.id).order('created_at',{ascending:false}),
-    sb.from('songs').select('*, likes(count)').eq('published',true).order('created_at',{ascending:false}),
+    sb.from('songs').select('*, comments(count)').eq('user_id',u.id).order('created_at',{ascending:false}),
+    sb.from('songs').select('*, likes(count), comments(count)').eq('published',true).order('created_at',{ascending:false}),
     sb.from('likes').select('song_id').eq('user_id',u.id)]);
   const bad=[n,i,s,c,l].find(x=>x.error);if(bad)toast('No se pudieron cargar los datos: '+bad.error.message);
   S.notes=n.data||[];S.insts=i.data||[];S.songs=s.data||[];S.pub=c.data||[];S.liked=new Set((l.data||[]).map(x=>x.song_id));
+  await sb.from('profiles').upsert({id:u.id,name:((u.user_metadata&&u.user_metadata.name)||'Anónimo').slice(0,40)},{ignoreDuplicates:true});await profs([u.id,...S.pub.map(x=>x.user_id)]);
   renderList();tab('N');if(innerWidth>820&&S.notes[0])openNote(S.notes[0].id);
 }
-function stop(){S.user=null;Object.assign(S,{notes:[],insts:[],songs:[],pub:[],cur:null});$('.app').hidden=true;$('#auth').hidden=false;$('#aPass').value=''}
+function stop(){stopPoll();S.user=null;Object.assign(S,{notes:[],insts:[],songs:[],pub:[],cur:null});$('.app').hidden=true;$('#auth').hidden=false;$('#aPass').value=''}
 if(ok){sb.auth.onAuthStateChange((ev,s)=>{if(s&&s.user){if(!S.user||S.user.id!==s.user.id)setTimeout(()=>start(s.user),0)}else if(S.user)stop()})}
 else{$('.app').hidden=true;$('#aMsg').textContent='Falta configurar Supabase en el código (bloque CONFIGURACIÓN).'}
 setMode('in');
 
 /* ===== pestañas ===== */
 function tab(n){
-  ['N','M','C','S'].forEach(k=>$('#v'+k).hidden=k!==n);document.body.classList.toggle('ed',n==='N'&&$('.notes').classList.contains('editing'));
-  $$('.tab[data-t]').forEach(t=>t.setAttribute('aria-selected',t.dataset.t===n));
-  if(n==='M')renderMusic();if(n==='C')renderFeed();if(n==='S')renderSettings();
+  ['N','M','C','S','H'].forEach(k=>$('#v'+k).hidden=k!==n);document.body.classList.toggle('ed',(n==='N'&&$('.notes').classList.contains('editing'))||(n==='H'&&$('#vH').classList.contains('th')));
+  $$('.tab[data-t]').forEach(t=>t.setAttribute('aria-selected',t.dataset.t===(n==='H'?'S':n)));
+  if(n!=='H')stopPoll();
+  if(n==='M')renderMusic();if(n==='C')renderFeed();if(n==='S')renderSettings();if(n==='H')openInbox();
 }
 $$('.tab[data-t]').forEach(t=>t.onclick=()=>tab(t.dataset.t));
 
@@ -406,21 +454,23 @@ function songCard(s,mine){
   const cv=el('div','cover');cv.style.backgroundImage=grad(s.title+s.artist);surl(s.cover_path).then(u=>u&&(cv.style.backgroundImage=`url(${u})`));
     const m=el('div','meta');m.append(el('h3','',s.title),el('p','',s.artist+', '+fmt(s.created_at)));if(mine)m.append(el('span','badge'+(s.published?'':' priv'),s.published?'Publicada':'Privada'));
   const l=el('pre','lyrics',s.lyrics),acts=el('div','acts');
+  const cn=s.comments&&s.comments[0]?s.comments[0].count:0,cm=cmtPanel(s),cb=el('button','btn sm','Comentarios'+(cn?' ('+cn+')':''));cm.hidden=true;cb.onclick=()=>{cm.hidden=!cm.hidden;if(!cm.hidden)cm.draw()};
+  const pf=el('button','btn sm','Perfil');pf.onclick=()=>openProfile(s.user_id);
   const more=el('button','btn sm','Ver letra');more.onclick=()=>{c.classList.toggle('open');more.textContent=c.classList.contains('open')?'Ocultar letra':'Ver letra'};
   if(mine){
     const p=el('button','btn sm main',s.published?'Quitar de la comunidad':'Publicar');
     p.onclick=async()=>{const r=await sb.from('songs').update({published:!s.published}).eq('id',s.id);if(r.error)return toast(r.error.message);s.published=!s.published;S.pub=S.pub.filter(x=>x.id!==s.id);if(s.published)S.pub.unshift({...s,likes:[{count:0}]});renderMusic()};
     const d=el('button','btn sm danger','Eliminar');
     d.onclick=async()=>{if(!confirm('¿Eliminar “'+s.title+'”?'))return;const r=await sb.from('songs').delete().eq('id',s.id);if(r.error)return toast(r.error.message);rm([s.cover_path,s.audio_path]);S.songs=S.songs.filter(z=>z!==s);S.pub=S.pub.filter(z=>z.id!==s.id);renderMusic()};
-    acts.append(p,more,d);
+    acts.append(p,more,cb,d);
   }else{
     const n=()=>(s.likes&&s.likes[0]?s.likes[0].count:0),lk=el('button','btn sm',(S.liked.has(s.id)?'♥ ':'♡ ')+n());
     lk.onclick=async()=>{const was=S.liked.has(s.id);
       const r=was?await sb.from('likes').delete().eq('song_id',s.id).eq('user_id',S.user.id):await sb.from('likes').insert({song_id:s.id});
       if(r.error)return toast(r.error.message);was?S.liked.delete(s.id):S.liked.add(s.id);s.likes=[{count:n()+(was?-1:1)}];lk.textContent=(was?'♡ ':'♥ ')+n()};
-    acts.append(lk,more);
+    acts.append(lk,more,cb,pf);
   }
-  c.append(cv,m,player(s.audio_path),l,acts);return c;
+  c.append(cv,m,player(s.audio_path),l,acts,cm);return c;
 }
 function renderMusic(){
   const box=$('#mList');box.textContent='';
@@ -506,7 +556,7 @@ const THEMES=[
  {id:'skeu',n:'Clásico',d:'Papel, cuero y metal',pv:'linear-gradient(135deg,#8b5e3c,#f1e4c0)'},
  {id:'flat',n:'Colores planos',d:'Tú eliges el color',pv:'linear-gradient(135deg,#2f7bff,#14b8a6)'}];
 const COLORS=['#2f7bff','#14b8a6','#22c55e','#f59e0b','#ef4444','#ec4899','#8b5cf6','#0f172a'];
-function renderSettings(){
+function renderSettings(){renderProfile();
   const t=ld('brisa_theme')||'glass',m=document.documentElement.dataset.mode,c=ld('brisa_color')||'#2f7bff';
   $('#uMail').textContent=S.user?S.user.email:'';
   const box=$('#themes');box.textContent='';
@@ -516,6 +566,90 @@ function renderSettings(){
   for(const k of COLORS){const b=el('button');b.style.background=k;b.setAttribute('aria-label','Color '+k);b.setAttribute('aria-pressed',k===c);b.onclick=()=>{store('brisa_color',k);applyTheme();renderSettings()};sw.append(b)}
   const i=el('input');i.type='color';i.value=c;i.setAttribute('aria-label','Otro color');i.oninput=()=>{store('brisa_color',i.value);applyTheme()};sw.append(i);
 }
+
+/* ===== perfiles ===== */
+var P={};
+async function profs(ids){const need=[...new Set(ids)].filter(i=>i&&!P[i]);if(need.length){const r=await sb.from('profiles').select('*').in('id',need);(r.data||[]).forEach(p=>P[p.id]=p)}need.forEach(i=>{if(!P[i])P[i]={id:i,name:'Usuario'}})}
+function avEl(id,cls){const p=P[id]||{},d=el('div','av '+cls,p.avatar_path?'':(p.name||'?')[0].toUpperCase());if(p.avatar_path)surl(p.avatar_path).then(u=>u&&(d.style.backgroundImage=`url(${u})`));return d}
+function renderProfile(){const me=P[S.user.id]||{};const a=avEl(S.user.id,'big');a.id='myAv';$('#myAv').replaceWith(a);$('#pName').value=me.name||''}
+function loadImg(f){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('No se pudo leer la imagen.'));i.src=URL.createObjectURL(f)})}
+async function squareJpeg(f,size,q){const i=await loadImg(f),m=Math.min(i.naturalWidth,i.naturalHeight),c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.fillStyle='#fff';x.fillRect(0,0,size,size);x.drawImage(i,(i.naturalWidth-m)/2,(i.naturalHeight-m)/2,m,m,0,0,size,size);return new Promise(r=>c.toBlob(r,'image/jpeg',q))}
+async function shotJpeg(f){const i=await loadImg(f),k=Math.min(1,1400/Math.max(i.naturalWidth,i.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(i.naturalWidth*k);c.height=Math.round(i.naturalHeight*k);c.getContext('2d').drawImage(i,0,0,c.width,c.height);return new Promise(r=>c.toBlob(r,'image/jpeg',.8))}
+$('#avIn').onchange=async e=>{const f=e.target.files[0],er=$('#pErr');e.target.value='';if(!f)return;er.textContent='';
+  try{if(!/^image\/(jpeg|png|webp)$/.test(f.type))throw new Error('Usa una imagen JPG, PNG o WEBP.');if(f.size>8388608)throw new Error('La foto pesa más de 8 MB.');
+    const b=await squareJpeg(f,400,.85),path=`${S.user.id}/avatar-${Date.now()}.jpg`,u=await sb.storage.from('media').upload(path,b,{contentType:'image/jpeg'});if(u.error)throw u.error;
+    const old=(P[S.user.id]||{}).avatar_path,r=await sb.from('profiles').update({avatar_path:path,updated_at:new Date().toISOString()}).eq('id',S.user.id);if(r.error)throw r.error;
+    if(old)sb.storage.from('media').remove([old]);P[S.user.id].avatar_path=path;renderProfile();toast('Foto actualizada.')}catch(x){er.textContent=x.message}};
+$('#pSave').onclick=async()=>{const n=$('#pName').value.trim().slice(0,40),er=$('#pErr');if(!n)return er.textContent='Escribe un nombre.';
+  const r=await sb.from('profiles').update({name:n}).eq('id',S.user.id);if(r.error)return er.textContent=r.error.message;P[S.user.id].name=n;er.textContent='';toast('Nombre guardado.')};
+async function openProfile(id){await profs([id]);const p=P[id],a=avEl(id,'big');a.id='pdAv';$('#pdAv').replaceWith(a);$('#pdName').textContent=p.name;
+  const r=await sb.from('songs').select('id',{count:'exact',head:true}).eq('user_id',id).eq('published',true);$('#pdInfo').textContent=plural(r.count||0,'canción publicada','canciones publicadas');
+  $('#pdChat').hidden=id===S.user.id;$('#pdChat').onclick=()=>{$('#pdlg').close();openChatWith(id)};$('#pdlg').showModal()}
+$('#pdClose').onclick=()=>$('#pdlg').close();$('#goChat').onclick=()=>tab('H');
+
+/* ===== comentarios ===== */
+function cmtPanel(s){
+  const box=el('div','cmts'),list=el('div'),f=el('div','cin'),i=el('input'),go=el('button','btn sm main','Enviar');
+  i.type='text';i.maxLength=500;i.placeholder='Escribe un comentario';f.append(i,go);box.append(list,f);
+  box.draw=async()=>{const r=await sb.from('comments').select('*').eq('song_id',s.id).order('created_at');if(r.error)return toast(r.error.message);
+    await profs(r.data.map(x=>x.user_id));list.textContent='';s.comments=[{count:r.data.length}];
+    if(!r.data.length)list.append(el('p','hint','Sé la primera persona en comentar.'));
+    for(const x of r.data){const row=el('div','cm'),cb=el('div','cb'),w=el('button','who',(P[x.user_id]||{}).name||'Usuario');w.onclick=()=>openProfile(x.user_id);
+      cb.append(w,el('div','',x.body));row.append(avEl(x.user_id,'xs'),cb);
+      if(x.user_id===S.user.id||s.user_id===S.user.id){const d=el('button','btn sm danger','×');d.setAttribute('aria-label','Borrar comentario');d.onclick=async()=>{const q=await sb.from('comments').delete().eq('id',x.id);if(q.error)return toast(q.error.message);box.draw()};row.append(d)}
+      list.append(row)}};
+  go.onclick=async()=>{const t=i.value.trim();if(!t)return;go.disabled=true;const r=await sb.from('comments').insert({song_id:s.id,body:t});go.disabled=false;if(r.error)return toast(r.error.message);i.value='';box.draw()};
+  i.onkeydown=e=>{if(e.key==='Enter')go.click()};return box}
+
+/* ===== chat ===== */
+var poll=null;S.inbox=[];S.chatWith=null;
+function stopPoll(){clearInterval(poll);poll=null}
+async function openInbox(){$('#vH').classList.remove('th');document.body.classList.remove('ed');S.chatWith=null;$('#cq').value='';await loadInbox();stopPoll();poll=setInterval(()=>{S.chatWith?loadThread():($('#cq').value.trim().length<2&&loadInbox())},5000)}
+async function loadInbox(){const r=await sb.from('messages').select('sender_id,recipient_id,body,attach_name,created_at').order('created_at',{ascending:false}).limit(300);if(r.error)return toast(r.error.message);
+  const seen=new Map();for(const m of r.data){const o=m.sender_id===S.user.id?m.recipient_id:m.sender_id;if(!seen.has(o))seen.set(o,m)}
+  await profs([...seen.keys()]);S.inbox=[...seen.entries()];drawInbox()}
+function personRow(id,sub){const b=el('button','item pp'),t=el('div');t.append(el('b','',(P[id]||{}).name||'Usuario'),el('small','',sub));b.append(avEl(id,'sm'),t);b.onclick=()=>openChatWith(id);return b}
+async function drawInbox(){const box=$('#cItems'),q=$('#cq').value.trim().replace(/[%_,()]/g,'');box.textContent='';
+  if(q.length>=2){const r=await sb.from('profiles').select('*').ilike('name','%'+q+'%').neq('id',S.user.id).limit(20);if(q!==$('#cq').value.trim().replace(/[%_,()]/g,''))return;
+    (r.data||[]).forEach(p=>P[p.id]=P[p.id]||p);if(!(r.data||[]).length)box.append(el('div','empty','No encontramos a nadie con ese nombre.'));(r.data||[]).forEach(p=>box.append(personRow(p.id,'Escribir mensaje')));return}
+  if(!S.inbox.length){box.append(el('div','empty','Aún no tienes chats. Busca a alguien por su nombre o abre su perfil desde la comunidad.'));return}
+  for(const [id,m] of S.inbox)box.append(personRow(id,(m.sender_id===S.user.id?'Tú: ':'')+(m.body||('♪ '+(m.attach_name||'Audio')))))}
+var ct;$('#cq').oninput=()=>{clearTimeout(ct);ct=setTimeout(drawInbox,300)};
+async function openChatWith(id){if($('#vH').hidden)tab('H');await profs([id]);S.chatWith=id;
+  const a=avEl(id,'sm');a.id='cAv';$('#cAv').replaceWith(a);$('#cName').textContent=P[id].name;
+  const m=$('#msgs');m.textContent='';delete m.dataset.sig;delete m.dataset.init;
+  const sel=$('#cInst');sel.textContent='';const o0=el('option','','Mis instrumentales');o0.value='';sel.append(o0);S.insts.forEach(a=>{const o=el('option','',a.name);o.value=a.id;sel.append(o)});
+  $('#vH').classList.add('th');document.body.classList.add('ed');loadThread()}
+async function loadThread(){const id=S.chatWith;if(!id)return;
+  const me=S.user.id,r=await sb.from('messages').select('*').or(`and(sender_id.eq.${me},recipient_id.eq.${id}),and(sender_id.eq.${id},recipient_id.eq.${me})`).order('created_at',{ascending:false}).limit(100);
+  if(r.error||id!==S.chatWith)return;const ms=r.data.reverse(),box=$('#msgs'),sg=ms.map(m=>m.id).join();if(box.dataset.sig===sg)return;box.dataset.sig=sg;
+  const atEnd=box.scrollHeight-box.scrollTop-box.clientHeight<80||!box.dataset.init;box.textContent='';
+  if(!ms.length)box.append(el('p','hint','Escribe el primer mensaje.'));
+  for(const m of ms){const mine=m.sender_id===me,d=el('div','msg'+(mine?' me':''));if(m.body)d.append(el('div','',m.body));
+    if(m.attach_path)d.append(el('div','',m.attach_name||'Audio'),player(m.attach_path));
+    d.append(el('small','',new Date(m.created_at).toLocaleString('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})));
+    if(mine){const x=el('button','link','Borrar');x.onclick=async()=>{await sb.from('messages').delete().eq('id',m.id);box.dataset.sig='';loadThread()};d.append(x)}
+    box.append(d)}
+  if(atEnd){box.scrollTop=box.scrollHeight;box.dataset.init=1}}
+async function sendMsg(extra={}){const id=S.chatWith,t=$('#cText').value.trim();if(!id||(!t&&!extra.attach_path))return;
+  const r=await sb.from('messages').insert({recipient_id:id,body:t,...extra});if(r.error)return toast(r.error.message);$('#cText').value='';$('#msgs').dataset.sig='';loadThread()}
+$('#cSend').onclick=()=>sendMsg();$('#cText').onkeydown=e=>{if(e.key==='Enter')sendMsg()};
+$('#cFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const p=await upload(await prepAudio(f));await sendMsg({attach_path:p,attach_name:clean(f.name)});$('#toast').hidden=true}catch(x){toast(x.message)}};
+$('#cInst').onchange=e=>{const a=S.insts.find(z=>z.id===e.target.value);e.target.value='';if(a)sendMsg({attach_path:a.path,attach_name:a.name})};
+$('#cBack0').onclick=()=>tab('S');$('#cBack').onclick=()=>{S.chatWith=null;$('#vH').classList.remove('th');document.body.classList.remove('ed');loadInbox()};
+
+/* ===== denunciar ===== */
+$('#cRep').onclick=()=>{$('#rdName').textContent=(P[S.chatWith]||{}).name||'';$('#rdWhy').value='';$('#rdShot').value='';$('#rdErr').textContent='';$('#rdlg').showModal()};
+$('#rdCancel').onclick=()=>$('#rdlg').close();
+$('#rdSend').onclick=async()=>{const w=$('#rdWhy').value.trim(),f=$('#rdShot').files[0],er=$('#rdErr'),b=$('#rdSend');
+  if(w.length<10)return er.textContent='Cuéntanos el motivo (mínimo 10 caracteres).';
+  if(!f)return er.textContent='La captura de pantalla es obligatoria.';
+  if(!/^image\//.test(f.type))return er.textContent='La captura debe ser una imagen.';if(f.size>15728640)return er.textContent='La imagen pesa demasiado (máx. 15 MB).';
+  b.disabled=true;b.textContent='Enviando…';er.textContent='';
+  try{const blob=await shotJpeg(f),path=`${S.user.id}/reports/${crypto.randomUUID()}.jpg`,u=await sb.storage.from('media').upload(path,blob,{contentType:'image/jpeg'});if(u.error)throw u.error;
+    const r=await sb.rpc('report_user',{target:S.chatWith,why:w,shot:path});if(r.error){sb.storage.from('media').remove([path]);throw r.error}
+    $('#rdlg').close();toast('Denuncia enviada. Gracias por avisar.')}catch(x){er.textContent=x.message}
+  b.disabled=false;b.textContent='Enviar denuncia'};
 </script>
 </body>
 </html>
